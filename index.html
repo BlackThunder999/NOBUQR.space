@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sibiria Airlines Virtual</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a192f; color: #f0f4f8; padding: 20px; }
+        .container { max-width: 960px; margin: auto; }
+        .card { background: #112240; border-radius: 20px; padding: 25px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header { text-align: center; border-bottom: 2px solid #00b4d8; padding-bottom: 20px; }
+        .header h1 { font-size: 48px; color: #00b4d8; letter-spacing: 2px; }
+        .header p { font-size: 18px; color: #94a3b8; }
+        .stats { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 20px 0; }
+        .stat { background: #1e293b; padding: 20px 40px; border-radius: 16px; text-align: center; min-width: 140px; }
+        .stat-number { font-size: 48px; font-weight: bold; }
+        .stat-label { font-size: 14px; color: #94a3b8; margin-top: 5px; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin: 20px 0; }
+        .btn { padding: 14px 30px; background: #00b4d8; color: #0a192f; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px; transition: 0.3s; border: none; cursor: pointer; }
+        .btn:hover { background: #00d4ff; transform: scale(1.02); }
+        .btn-outline { background: transparent; border: 2px solid #00b4d8; color: #00b4d8; }
+        .btn-outline:hover { background: #00b4d8; color: #0a192f; }
+        .footer { text-align: center; color: #64748b; font-size: 14px; margin-top: 30px; }
+        .flight-info { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin: 15px 0; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card header">
+            <h1>✈️ SIBIRIA AIRLINES</h1>
+            <p>Виртуальная авиакомпания в PTFS</p>
+            <div class="flight-info">
+                <span>🚀 Boeing 787-8 Dreamliner</span>
+                <span>💺 242 места</span>
+                <span>🛫 13 620 км дальность</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" style="color: #ef4444;" id="crashes">0</div>
+                    <div class="stat-label">💥 Катастроф</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" style="color: #22c55e;" id="goodLandings">0</div>
+                    <div class="stat-label">✅ Удачных посадок</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" style="color: #eab308;" id="totalFlights">0</div>
+                    <div class="stat-label">🛫 Всего рейсов</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="text-align: center;">
+            <div class="btn-group">
+                <a href="booking.html" class="btn">🎫 Забронировать</a>
+                <a href="dispatch.html" class="btn btn-outline">🎧 Диспетчерская</a>
+                <a href="admin.html" class="btn btn-outline">⚙️ Админ-панель</a>
+                <a href="https://t.me/siberia_airlines" class="btn btn-outline" target="_blank">📩 Telegram</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Sibiria Airlines Virtual © 2026 — Все рейсы виртуальны</p>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://iljsednetiogjtowlexo.supabase.co';
+        const supabaseKey = 'sb_publishable_gXxOqmU-XXnrVz8FHro2jA_ybG9EQ7O';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function loadStats() {
+            let { data, error } = await supabase.from('stats').select('*').eq('id', 1).single();
+            if (!error && data) {
+                document.getElementById('crashes').innerText = data.crashes || 0;
+                document.getElementById('goodLandings').innerText = data.good_landings || 0;
+            }
+        }
+
+        async function loadTotalFlights() {
+            let { count, error } = await supabase.from('flights').select('*', { count: 'exact', head: true });
+            if (!error) {
+                document.getElementById('totalFlights').innerText = count || 0;
+            }
+        }
+
+        loadStats();
+        loadTotalFlights();
+    </script>
+</body>
+</html>
