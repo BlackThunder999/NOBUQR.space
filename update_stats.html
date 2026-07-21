@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обновление статистики</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a192f; color: #f0f4f8; padding: 30px; text-align: center; }
+        .card { background: #112240; max-width: 500px; margin: auto; padding: 30px; border-radius: 16px; }
+        h1 { color: #00b4d8; }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; margin: 20px 0; }
+        .btn { padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn:hover { transform: scale(1.02); }
+        .btn-back { display: inline-block; margin-top: 20px; color: #00b4d8; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📊 Обновление статистики</h1>
+        <p style="color:#94a3b8;">Увеличьте счётчик катастроф или удачных посадок</p>
+        <div class="btn-group">
+            <button class="btn btn-danger" onclick="updateStats('crashes')">💥 +1 Катастрофа</button>
+            <button class="btn btn-success" onclick="updateStats('good_landings')">✅ +1 Удачная посадка</button>
+        </div>
+        <a href="index.html" class="btn-back">← На главную</a>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://iljsednetiogjtowlexo.supabase.co';
+        const supabaseKey = 'sb_publishable_gXxOqmU-XXnrVz8FHro2jA_ybG9EQ7O';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function updateStats(type) {
+            let { data, error } = await supabase.from('stats').select('*').eq('id', 1).single();
+            if (error) return alert('Ошибка загрузки: ' + error.message);
+
+            const updateData = {};
+            if (type === 'crashes') updateData.crashes = (data.crashes || 0) + 1;
+            else if (type === 'good_landings') updateData.good_landings = (data.good_landings || 0) + 1;
+
+            const { error: updateError } = await supabase.from('stats').update(updateData).eq('id', 1);
+            if (updateError) alert('Ошибка обновления: ' + updateError.message);
+            else alert('✅ Обновлено!');
+        }
+    </script>
+</body>
+</html>
