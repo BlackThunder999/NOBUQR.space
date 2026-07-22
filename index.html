@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOBUQR.SPACE</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header id="mainHeader" style="display:none;">
+        <div class="header-container">
+            <h1 class="logo">NOBUQR.SPACE</h1>
+            <nav id="mainNav">
+                <button onclick="showPage('feed')" class="nav-btn active" id="feedBtn">🏠 Лента</button>
+                <button onclick="showPage('search')" class="nav-btn" id="searchBtn">🔍 Поиск</button>
+                <button onclick="showPage('profile')" class="nav-btn" id="profileBtn">👤 Профиль</button>
+                <button onclick="showPage('messages')" class="nav-btn" id="messagesBtn">✉️ Связь</button>
+                <button onclick="showPage('admin')" class="nav-btn" id="adminBtn" style="display:none;">⚙️ Админ</button>
+            </nav>
+            <button onclick="logout()" class="logout-btn">Выйти</button>
+        </div>
+    </header>
+
+    <main id="mainContent">
+        <section id="authPage" class="page active">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button onclick="showAuthTab('login')" class="auth-tab active">Вход</button>
+                    <button onclick="showAuthTab('register')" class="auth-tab">Регистрация</button>
+                </div>
+                
+                <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                    <h2>Войти</h2>
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="password" id="loginPassword" placeholder="Пароль" required>
+                    <button type="submit" class="primary-btn">Войти</button>
+                    <button type="button" class="link-btn" onclick="showResetPassword()">Забыли пароль?</button>
+                </form>
+                
+                <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+                    <h2>Регистрация</h2>
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                    <input type="text" id="regNickname" placeholder="Никнейм (буквы, цифры, _ - .)" pattern="[a-zA-Zа-яА-ЯёЁ0-9_\-\.]+" required>
+                    <input type="password" id="regPassword" placeholder="Пароль (мин. 6 символов)" minlength="6" required>
+                    <input type="date" id="regBirthDate" required>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="acceptTerms" required>
+                        Принимаю <a href="terms.html" target="_blank">условия</a>
+                    </label>
+                    <button type="submit" class="primary-btn">Зарегистрироваться</button>
+                </form>
+                
+                <div id="verifyEmailSection" style="display:none;">
+                    <h2>🔐 Подтверждение email</h2>
+                    <p>Код отправлен на <strong id="verifyEmailDisplay"></strong></p>
+                    <input type="text" id="verificationCode" placeholder="6-значный код" maxlength="6">
+                    <button onclick="verifyEmailCode()" class="primary-btn">Подтвердить</button>
+                    <button onclick="resendCode()" class="link-btn">Отправить повторно</button>
+                </div>
+                
+                <div id="resetPasswordSection" style="display:none;">
+                    <h2>🔑 Восстановление пароля</h2>
+                    <input type="email" id="resetEmail" placeholder="Ваш email">
+                    <button onclick="sendResetCode()" class="primary-btn">Отправить код</button>
+                    <div id="resetCodeSection" style="display:none; margin-top: 20px;">
+                        <input type="text" id="resetCode" placeholder="Код из письма" maxlength="6">
+                        <input type="password" id="newPassword" placeholder="Новый пароль" minlength="6">
+                        <button onclick="resetPassword()" class="primary-btn">Сменить пароль</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="feedPage" class="page">
+            <div class="create-post">
+                <textarea id="postContent" placeholder="Что нового? (280 символов)" maxlength="280"></textarea>
+                <div class="media-preview" id="mediaPreview" style="display:none;"></div>
+                <div class="post-actions">
+                    <div class="media-buttons">
+                        <button type="button" onclick="document.getElementById('postImage').click()" class="icon-btn">📷</button>
+                        <button type="button" onclick="document.getElementById('postVideo').click()" class="icon-btn">🎥</button>
+                        <input type="file" id="postImage" accept="image/*" style="display:none;" onchange="previewMedia('image')">
+                        <input type="file" id="postVideo" accept="video/*" style="display:none;" onchange="previewMedia('video')">
+                    </div>
+                    <button onclick="createPost()" class="primary-btn" id="postBtn" disabled>Опубликовать</button>
+                </div>
+                <div class="char-counter" id="charCounter">0/280</div>
+            </div>
+            <div id="postsFeed" class="posts-feed"></div>
+        </section>
+
+        <section id="searchPage" class="page">
+            <input type="text" id="searchInput" placeholder="Поиск по хештегам..." oninput="searchHashtags()">
+            <div id="searchResults" class="posts-feed"></div>
+        </section>
+
+        <section id="profilePage" class="page">
+            <div id="profileInfo" class="profile-info"></div>
+            <div id="profilePosts" class="posts-feed"></div>
+        </section>
+
+        <section id="messagesPage" class="page">
+            <h2>✉️ Обратная связь</h2>
+            <p style="color:#666;">Все сообщения получает администратор</p>
+            <form onsubmit="sendMessage(event)" style="display:flex;flex-direction:column;gap:15px;">
+                <input type="text" id="messageSubject" placeholder="Тема" required>
+                <textarea id="messageText" placeholder="Сообщение..." rows="5" required></textarea>
+                <button type="submit" class="primary-btn">Отправить</button>
+            </form>
+            <div id="sentMessages" style="margin-top:30px;"></div>
+        </section>
+
+        <section id="adminPage" class="page">
+            <div class="admin-login" id="adminLoginForm">
+                <h2>Админ-панель</h2>
+                <input type="password" id="adminPassword" placeholder="Пароль">
+                <button onclick="adminLogin()" class="primary-btn">Войти</button>
+            </div>
+            <div class="admin-panel" id="adminPanel" style="display:none;">
+                <div class="admin-actions">
+                    <button onclick="showAdminSection('users')" class="admin-nav-btn">👥 Пользователи</button>
+                    <button onclick="showAdminSection('reports')" class="admin-nav-btn">🚩 Жалобы</button>
+                    <button onclick="showAdminSection('messages')" class="admin-nav-btn">✉️ Обращения</button>
+                    <button onclick="showAdminSection('banned')" class="admin-nav-btn">🚫 IP баны</button>
+                    <button onclick="massSessionReset()" class="danger-btn">🔄 Сброс сессий</button>
+                </div>
+                <div id="adminContent" class="admin-content"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="terms.html">Условия</a>
+        <a href="privacy.html">Конфиденциальность</a>
+        <a href="rules.html">Правила</a>
+        <span>© 2026 NOBUQR.SPACE</span>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
