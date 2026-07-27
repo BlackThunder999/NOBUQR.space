@@ -1,0 +1,128 @@
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060e;--card:rgba(20,20,40,0.7);--accent:#7c4dff;--accent2:#b388ff;--txt:#fff;--txt2:#b0b0c0;--txt3:#707080;--border:rgba(124,77,255,0.2);--radius:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);display:flex;justify-content:center;min-height:100vh}
+input,textarea{width:100%;padding:12px;background:rgba(10,10,25,0.9);border:1px solid var(--border);border-radius:8px;color:var(--txt);font-size:15px;outline:none;font-family:inherit;resize:vertical}
+input:focus,textarea:focus{border-color:var(--accent)}
+.btn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.btn:hover{background:#651fff}
+.btn:disabled{background:#555;cursor:default}
+
+/* Auth */
+#auth-screen{width:100%;max-width:460px;min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(124,77,255,0.08) 0%,transparent 70%)}
+.auth-box{width:100%;padding:24px}
+.auth-logo{text-align:center;font-size:36px;font-weight:800;margin-bottom:4px}
+.auth-logo span{color:var(--accent)}
+.auth-sub{text-align:center;color:var(--txt3);margin-bottom:24px}
+#login-form input,#reg-form input{margin-bottom:10px}
+#reg-form input{margin-bottom:8px}
+.switch{text-align:center;margin-top:12px;font-size:13px;color:var(--txt3)}
+.switch a{color:var(--accent2);text-decoration:none}
+.check{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt2);margin-bottom:10px}
+.check input{width:auto;margin:0}
+.check a{color:var(--accent2)}
+
+/* App */
+#app-screen{width:100%;max-width:480px;min-height:100vh;display:flex;flex-direction:column;position:relative;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.topbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(15,15,30,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.logo{width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2)}
+.icon-btn{background:none;border:none;color:var(--txt2);font-size:18px;cursor:pointer;padding:4px 6px;border-radius:6px}
+.icon-btn:hover{background:rgba(124,77,255,0.15)}
+.content{flex:1;overflow-y:auto;padding-bottom:70px}
+.bottom-nav{display:flex;justify-content:space-around;padding:6px 0;background:rgba(15,15,30,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);position:fixed;bottom:0;width:100%;max-width:480px;z-index:50}
+.nav-btn{background:none;border:none;color:var(--txt3);font-size:22px;cursor:pointer;padding:8px 14px;border-radius:8px;transition:.2s}
+.nav-btn.active{color:var(--accent2)}
+.nav-btn:hover{color:var(--txt)}
+.create-btn{background:var(--accent);color:#fff!important;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 15px rgba(124,77,255,0.4)}
+
+/* Feed */
+.feed-tabs{display:flex;padding:10px 14px;gap:4px;background:rgba(10,10,20,0.5)}
+.feed-tab{flex:1;padding:7px;background:none;border:none;color:var(--txt3);font-size:12px;font-weight:600;cursor:pointer;border-radius:20px;transition:.2s}
+.feed-tab.active{background:var(--accent);color:#fff}
+.card{background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:8px 14px;animation:fadeIn .3s}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;cursor:pointer;background:var(--accent);flex-shrink:0}
+.card-name{font-weight:700;font-size:13px;cursor:pointer}
+.card-handle{color:var(--txt3);font-size:11px}
+.card-text{font-size:14px;line-height:1.4;margin-bottom:8px;word-wrap:break-word}
+.card-text .ht{color:var(--accent2);cursor:pointer}
+.card-text .mn{color:var(--accent2);cursor:pointer;font-weight:600}
+.card-media{width:100%;border-radius:8px;max-height:300px;object-fit:cover;margin-bottom:8px}
+.card-video{width:100%;border-radius:8px;max-height:350px;margin-bottom:8px}
+.card-actions{display:flex;gap:18px}
+.card-act{display:flex;align-items:center;gap:4px;background:none;border:none;color:var(--txt3);font-size:13px;cursor:pointer;padding:4px 8px;border-radius:16px;transition:.2s}
+.card-act:hover{background:rgba(124,77,255,0.1)}
+.card-act.liked{color:#ff4757}
+.card-act.rechirped{color:#2ed573}
+
+/* Search */
+.search-wrap{padding:14px}
+.search-wrap input{width:100%;padding:12px 16px;border-radius:24px}
+.search-result{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border-radius:8px;margin:6px 14px;cursor:pointer}
+.search-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--accent)}
+
+/* Shop */
+.shop-top{display:flex;justify-content:space-between;align-items:center;padding:14px}
+.gems-badge{display:flex;align-items:center;gap:4px;background:var(--card);padding:6px 12px;border-radius:20px;font-weight:700;font-size:14px}
+.shop-item{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:8px 14px}
+.shop-item h4{font-size:14px;margin-bottom:2px}
+.shop-item p{font-size:11px;color:var(--txt3);margin-bottom:4px}
+.shop-item .price{color:var(--accent2);font-weight:700;font-size:13px}
+.shop-item button{padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:16px;cursor:pointer;font-size:12px;font-weight:600}
+.inv-section{padding:14px;border-top:1px solid var(--border);margin-top:12px}
+.inv-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--card);border-radius:8px;margin-bottom:4px;font-size:13px}
+.inv-item button{padding:4px 12px;border:1px solid var(--accent);background:none;color:var(--accent2);border-radius:12px;cursor:pointer;font-size:11px}
+
+/* Profile */
+.profile-banner{width:100%;height:140px;object-fit:cover;background:linear-gradient(135deg,#1a1a3e,#2d1b69)}
+.profile-info{padding:0 14px;position:relative}
+.profile-avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--bg);object-fit:cover;margin-top:-36px;background:var(--accent)}
+.profile-name{font-size:18px;font-weight:800;margin-top:6px}
+.profile-handle{color:var(--txt3);font-size:13px}
+.profile-bio{margin-top:6px;font-size:13px;color:var(--txt2)}
+.profile-stats{display:flex;gap:16px;margin-top:10px;padding:10px 0;border-top:1px solid var(--border)}
+.profile-stat{text-align:center}
+.profile-stat .val{font-weight:700;font-size:15px}
+.profile-stat .lbl{font-size:10px;color:var(--txt3)}
+.profile-acts{display:flex;gap:8px;margin-top:10px}
+.profile-acts button{flex:1;padding:9px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-follow{background:var(--accent);color:#fff;border:none}
+.btn-follow.following{background:none;border:1px solid var(--accent);color:var(--accent2)}
+.btn-msg{background:none;border:1px solid var(--border);color:var(--txt)}
+.btn-edit{background:none;border:1px solid var(--border);color:var(--txt)}
+
+/* Chat */
+.chat-modal{display:flex;flex-direction:column;max-height:80vh}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;min-height:200px;max-height:50vh}
+.chat-msg{max-width:75%;padding:8px 12px;border-radius:16px;font-size:13px;word-wrap:break-word}
+.chat-msg.sent{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.chat-msg.recv{align-self:flex-start;background:var(--card);border-bottom-left-radius:4px}
+
+/* Modals */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:440px;max-height:90vh;overflow-y:auto;padding:16px;animation:fadeIn .3s}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:700;font-size:16px}
+.close-btn{background:none;border:none;color:var(--txt3);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:50%}
+.close-btn:hover{background:rgba(255,255,255,0.1)}
+.modal label{display:block;font-size:12px;color:var(--txt2);margin:8px 0 4px}
+.modal input,.modal textarea{margin-bottom:8px}
+.tab-btn{padding:6px 12px;background:none;border:1px solid var(--border);border-radius:16px;color:var(--txt3);font-size:12px;cursor:pointer}
+.tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.media-btn{padding:8px 12px;background:rgba(30,30,60,0.6);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:18px}
+
+/* Toast */
+#toast-container{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:6px}
+.toast{background:var(--card);border:1px solid var(--border);padding:10px 16px;border-radius:8px;font-size:13px;animation:slideIn .3s;backdrop-filter:blur(10px)}
+.toast.err{border-color:#ff4757;color:#ff4757}
+.toast.ok{border-color:#2ed573;color:#2ed573}
+
+.legal{font-size:12px;color:var(--txt2);line-height:1.6}
+.admin-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--card);border-radius:6px;margin-bottom:4px;font-size:12px}
+.admin-row button{padding:4px 10px;border-radius:10px;border:1px solid var(--border);background:none;color:var(--txt2);cursor:pointer;font-size:11px;margin-left:4px}
+.empty{text-align:center;padding:40px;color:var(--txt3);font-size:14px}
+.loader{text-align:center;padding:16px;color:var(--txt3);font-size:13px}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+@media(min-width:481px){#app-screen,.bottom-nav{left:50%;transform:translateX(-50%)}.bottom-nav{border-radius:16px 16px 0 0;width:480px}}
