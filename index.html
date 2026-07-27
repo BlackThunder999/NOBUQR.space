@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NobuSocial</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- App Container -->
+    <div id="app" class="app">
+        <!-- Header -->
+        <header id="header" class="header">
+            <div class="header-content">
+                <button id="back-btn" class="header-btn back-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1 id="page-title" class="page-title">NobuSocial</h1>
+                <button id="search-btn" class="header-btn search-btn" onclick="showSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content">
+            <!-- Auth Screens -->
+            <div id="auth-screen" class="screen active">
+                <div class="auth-container">
+                    <div class="logo">
+                        <i class="fas fa-feather-alt"></i>
+                        <h2>NobuSocial</h2>
+                    </div>
+                    <div class="auth-tabs">
+                        <button id="login-tab" class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+                        <button id="register-tab" class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
+                    </div>
+                    <form id="login-form" class="auth-form active">
+                        <input type="email" id="login-email" class="auth-input" placeholder="Email" required>
+                        <input type="password" id="login-password" class="auth-input" placeholder="Пароль" required>
+                        <button type="submit" class="auth-btn" onclick="handleLogin(event)">Войти</button>
+                    </form>
+                    <form id="register-form" class="auth-form">
+                        <input type="text" id="reg-username" class="auth-input" placeholder="Имя пользователя" required>
+                        <input type="email" id="reg-email" class="auth-input" placeholder="Email" required>
+                        <input type="password" id="reg-password" class="auth-input" placeholder="Пароль" required>
+                        <input type="text" id="reg-display-name" class="auth-input" placeholder="Отображаемое имя">
+                        <button type="submit" class="auth-btn" onclick="handleRegister(event)">Зарегистрироваться</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Home Feed Screen -->
+            <div id="home-screen" class="screen">
+                <div class="feed-tabs">
+                    <button class="feed-tab active" onclick="switchFeedTab('latest')">Последние</button>
+                    <button class="feed-tab" onclick="switchFeedTab('popular')">Популярные</button>
+                    <button class="feed-tab" onclick="switchFeedTab('following')">Подписки</button>
+                </div>
+                <div id="feed-content" class="feed-content">
+                    <!-- Chirps will be loaded here -->
+                </div>
+                <div id="feed-loader" class="feed-loader">
+                    <div class="spinner"></div>
+                    <p>Загрузка...</p>
+                </div>
+            </div>
+
+            <!-- Search Screen -->
+            <div id="search-screen" class="screen">
+                <div class="search-container">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="Поиск пользователей..." oninput="handleSearchInput()">
+                    </div>
+                    <div id="search-results" class="search-results">
+                        <!-- Results will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Chirp Screen -->
+            <div id="create-screen" class="screen">
+                <div class="create-container">
+                    <textarea id="chirp-content" class="chirp-input" placeholder="Что у вас нового? (макс. 280 символов)" maxlength="280" oninput="updateChirpCounter()"></textarea>
+                    <div class="chirp-counter">
+                        <span id="char-count">0</span>/280
+                    </div>
+                    <div class="media-preview" id="media-preview">
+                        <img id="media-image" src="" alt="Preview">
+                        <video id="media-video" controls></video>
+                        <button class="remove-media" onclick="removeMedia()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="create-actions">
+                        <label class="media-btn" for="media-upload">
+                            <i class="fas fa-image"></i>
+                        </label>
+                        <input type="file" id="media-upload" accept="image/*,video/*" onchange="handleMediaUpload(event)" style="display: none;">
+                        <button class="create-btn" onclick="createChirp()">Опубликовать</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Screen -->
+            <div id="shop-screen" class="screen">
+                <div class="shop-header">
+                    <div class="gems-display">
+                        <i class="fas fa-gem"></i>
+                        <span id="user-gems">0</span> Gems
+                    </div>
+                    <div class="shop-tabs">
+                        <button class="shop-tab active" onclick="switchShopTab('all')">Все</button>
+                        <button class="shop-tab" onclick="switchShopTab('avatar_frame')">Рамки</button>
+                        <button class="shop-tab" onclick="switchShopTab('banner')">Баннеры</button>
+                        <button class="shop-tab" onclick="switchShopTab('badge')">Значки</button>
+                        <button class="shop-tab" onclick="switchShopTab('effect')">Эффекты</button>
+                    </div>
+                </div>
+                <div id="shop-items" class="shop-items">
+                    <!-- Shop items will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Profile Screen -->
+            <div id="profile-screen" class="screen">
+                <div class="profile-header">
+                    <div class="profile-banner" id="profile-banner">
+                        <img id="banner-img" src="" alt="Banner">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-avatar-container">
+                            <img id="profile-avatar" src="" alt="Avatar" class="profile-avatar">
+                            <div class="avatar-frame" id="avatar-frame"></div>
+                        </div>
+                        <h2 id="profile-display-name">Имя пользователя</h2>
+                        <p id="profile-username">@username</p>
+                        <p id="profile-bio">Биография</p>
+                        <div class="profile-links">
+                            <span id="profile-location"></span>
+                            <a id="profile-website" href="" target="_blank"></a>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat">
+                                <span id="profile-chirps">0</span>
+                                <p>Чирпов</p>
+                            </div>
+                            <div class="stat">
+                                <span id="profile-following">0</span>
+                                <p>Подписок</p>
+                            </div>
+                            <div class="stat">
+                                <span id="profile-followers">0</span>
+                                <p>Подписчиков</p>
+                            </div>
+                            <div class="stat">
+                                <span id="profile-likes">0</span>
+                                <p>Лайков</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button id="follow-btn" class="profile-btn" onclick="toggleFollow()">Подписаться</button>
+                    <button id="message-btn" class="profile-btn" onclick="startChat()">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                    <button id="settings-btn" class="profile-btn" onclick="showSettings()">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+                <div class="profile-tabs">
+                    <button class="profile-tab active" onclick="switchProfileTab('chirps')">Чирпы</button>
+                    <button class="profile-tab" onclick="switchProfileTab('likes')">Лайки</button>
+                    <button class="profile-tab" onclick="switchProfileTab('rechirps')">Речирпы</button>
+                </div>
+                <div id="profile-content" class="profile-content">
+                    <!-- User chirps will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Chat Screen -->
+            <div id="chat-screen" class="screen">
+                <div class="chat-header">
+                    <button class="chat-back" onclick="backToChats()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="chat-user-info">
+                        <img id="chat-avatar" src="" alt="Avatar" class="chat-avatar">
+                        <div class="chat-user-details">
+                            <h3 id="chat-display-name">Имя пользователя</h3>
+                            <p id="chat-username">@username</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Введите сообщение..." onkeypress="handleChatKeyPress(event)">
+                    <button class="chat-send" onclick="sendChatMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chats List Screen -->
+            <div id="chats-list-screen" class="screen">
+                <div class="chats-list">
+                    <h2>Чаты</h2>
+                    <div id="chats-list-content" class="chats-list-content">
+                        <!-- Chats will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Screen -->
+            <div id="notifications-screen" class="screen">
+                <div class="notifications-container">
+                    <h2>Уведомления</h2>
+                    <div id="notifications-list" class="notifications-list">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div id="settings-screen" class="screen">
+                <div class="settings-container">
+                    <h2>Настройки</h2>
+                    <div class="settings-section">
+                        <h3>Профиль</h3>
+                        <div class="settings-item" onclick="editProfile()">
+                            <i class="fas fa-user-edit"></i>
+                            <span>Редактировать профиль</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="settings-item" onclick="changePassword()">
+                            <i class="fas fa-key"></i>
+                            <span>Сменить пароль</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Приватность</h3>
+                        <div class="settings-item">
+                            <i class="fas fa-eye"></i>
+                            <span>Приватный аккаунт</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="private-account" onchange="togglePrivateAccount()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>О приложении</h3>
+                        <div class="settings-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Версия 1.0.0</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Выйти
+                    </button>
+                </div>
+            </div>
+
+            <!-- Edit Profile Screen -->
+            <div id="edit-profile-screen" class="screen">
+                <div class="edit-profile-container">
+                    <h2>Редактировать профиль</h2>
+                    <div class="edit-avatar-container">
+                        <img id="edit-avatar" src="" alt="Avatar" class="edit-avatar">
+                        <label class="edit-avatar-btn" for="avatar-upload">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="avatar-upload" accept="image/*" onchange="handleAvatarUpload(event)" style="display: none;">
+                    </div>
+                    <div class="edit-banner-container">
+                        <img id="edit-banner" src="" alt="Banner" class="edit-banner">
+                        <label class="edit-banner-btn" for="banner-upload">
+                            <i class="fas fa-image"></i> Изменить баннер
+                        </label>
+                        <input type="file" id="banner-upload" accept="image/*" onchange="handleBannerUpload(event)" style="display: none;">
+                    </div>
+                    <div class="edit-form">
+                        <div class="form-group">
+                            <label>Отображаемое имя</label>
+                            <input type="text" id="edit-display-name" class="edit-input" placeholder="Отображаемое имя">
+                        </div>
+                        <div class="form-group">
+                            <label>Биография</label>
+                            <textarea id="edit-bio" class="edit-input edit-textarea" placeholder="Расскажите о себе"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Ссылка</label>
+                            <input type="url" id="edit-website" class="edit-input" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Локация</label>
+                            <input type="text" id="edit-location" class="edit-input" placeholder="Город, страна">
+                        </div>
+                    </div>
+                    <button class="save-btn" onclick="saveProfile()">Сохранить изменения</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel Screen -->
+            <div id="admin-screen" class="screen">
+                <div class="admin-container">
+                    <h2>Админ-панель</h2>
+                    <div class="admin-tabs">
+                        <button class="admin-tab active" onclick="switchAdminTab('stats')">Статистика</button>
+                        <button class="admin-tab" onclick="switchAdminTab('users')">Пользователи</button>
+                        <button class="admin-tab" onclick="switchAdminTab('reports')">Жалобы</button>
+                        <button class="admin-tab" onclick="switchAdminTab('gems')">Gems</button>
+                    </div>
+                    <div id="admin-content" class="admin-content">
+                        <!-- Admin content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Stats -->
+            <div id="admin-stats" class="admin-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Пользователи</h3>
+                        <p id="admin-total-users">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Чирпы</h3>
+                        <p id="admin-total-chirps">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Лайки</h3>
+                        <p id="admin-total-likes">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Чаты</h3>
+                        <p id="admin-total-chats">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Users -->
+            <div id="admin-users" class="admin-section" style="display: none;">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="admin-user-search" placeholder="Поиск пользователей..." oninput="searchAdminUsers()">
+                </div>
+                <div id="admin-users-list" class="admin-list">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Admin Reports -->
+            <div id="admin-reports" class="admin-section" style="display: none;">
+                <div id="admin-reports-list" class="admin-list">
+                    <!-- Reports will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Admin Gems -->
+            <div id="admin-gems" class="admin-section" style="display: none;">
+                <div class="admin-gems-form">
+                    <h3>Выдать Gems</h3>
+                    <input type="text" id="gems-username" class="admin-input" placeholder="Имя пользователя">
+                    <input type="number" id="gems-amount" class="admin-input" placeholder="Количество Gems">
+                    <button class="admin-btn" onclick="grantGems()">Выдать</button>
+                </div>
+                <div id="admin-gems-list" class="admin-list">
+                    <!-- Gem transactions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- User Inventory Screen -->
+            <div id="inventory-screen" class="screen">
+                <div class="inventory-container">
+                    <h2>Инвентарь</h2>
+                    <div class="inventory-tabs">
+                        <button class="inventory-tab active" onclick="switchInventoryTab('all')">Все</button>
+                        <button class="inventory-tab" onclick="switchInventoryTab('equipped')">Активные</button>
+                        <button class="inventory-tab" onclick="switchInventoryTab('frames')">Рамки</button>
+                        <button class="inventory-tab" onclick="switchInventoryTab('banners')">Баннеры</button>
+                        <button class="inventory-tab" onclick="switchInventoryTab('badges')">Значки</button>
+                    </div>
+                    <div id="inventory-items" class="inventory-items">
+                        <!-- Inventory items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Chirp Screen -->
+            <div id="view-chirp-screen" class="screen">
+                <div class="chirp-detail">
+                    <div class="chirp-header">
+                        <img id="chirp-avatar" src="" alt="Avatar" class="chirp-avatar">
+                        <div class="chirp-user-info">
+                            <h3 id="chirp-display-name">Имя пользователя</h3>
+                            <p id="chirp-username">@username</p>
+                        </div>
+                        <button class="chirp-more" onclick="showChirpActions()">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                    <div class="chirp-content">
+                        <p id="chirp-text"></p>
+                        <div class="chirp-media" id="chirp-media">
+                            <img id="chirp-image" src="" alt="Chirp image">
+                            <video id="chirp-video" controls></video>
+                        </div>
+                    </div>
+                    <div class="chirp-stats">
+                        <div class="chirp-stat">
+                            <span id="chirp-likes">0</span> лайков
+                        </div>
+                        <div class="chirp-stat">
+                            <span id="chirp-rechirps">0</span> речирпов
+                        </div>
+                        <div class="chirp-stat">
+                            <span id="chirp-comments">0</span> комментариев
+                        </div>
+                        <div class="chirp-stat">
+                            <span id="chirp-views">0</span> просмотров
+                        </div>
+                    </div>
+                    <div class="chirp-actions">
+                        <button class="chirp-action" onclick="likeChirp()">
+                            <i class="far fa-heart" id="like-icon"></i>
+                            <span>Лайк</span>
+                        </button>
+                        <button class="chirp-action" onclick="showComments()">
+                            <i class="far fa-comment"></i>
+                            <span>Комментировать</span>
+                        </button>
+                        <button class="chirp-action" onclick="rechirp()">
+                            <i class="fas fa-retweet"></i>
+                            <span>Речирп</span>
+                        </button>
+                    </div>
+                    <div id="chirp-comments" class="chirp-comments">
+                        <h4>Комментарии</h4>
+                        <div id="comments-list" class="comments-list">
+                            <!-- Comments will be loaded here -->
+                        </div>
+                        <div class="add-comment">
+                            <input type="text" id="comment-input" placeholder="Добавьте комментарий...">
+                            <button onclick="addComment()">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav" class="bottom-nav">
+            <button class="nav-item active" onclick="navigateTo('home')">
+                <i class="fas fa-home"></i>
+                <span>Главная</span>
+            </button>
+            <button class="nav-item" onclick="navigateTo('search')">
+                <i class="fas fa-search"></i>
+                <span>Поиск</span>
+            </button>
+            <button class="nav-item" onclick="navigateTo('create')">
+                <i class="fas fa-plus"></i>
+                <span>Создать</span>
+            </button>
+            <button class="nav-item" onclick="navigateTo('shop')">
+                <i class="fas fa-gem"></i>
+                <span>Shop</span>
+            </button>
+            <button class="nav-item" onclick="navigateTo('profile')">
+                <i class="fas fa-user"></i>
+                <span>Профиль</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
