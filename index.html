@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NobuSocial</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Экран авторизации -->
+        <div id="auth-screen" class="screen active">
+            <div class="auth-container">
+                <div class="auth-logo-container">
+                    <div class="auth-logo">🖋️</div>
+                    <h1 class="auth-title">NobuSocial</h1>
+                    <p class="auth-subtitle">Перо творчества в твоих руках</p>
+                </div>
+                <div id="auth-tabs" class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
+                    <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
+                </div>
+                <div id="login-form" class="auth-form active">
+                    <input type="email" id="login-email" placeholder="Email" class="input-field">
+                    <input type="password" id="login-password" placeholder="Пароль" class="input-field">
+                    <button class="btn btn-primary" onclick="login()">Войти</button>
+                </div>
+                <div id="register-form" class="auth-form">
+                    <input type="email" id="reg-email" placeholder="Email" class="input-field">
+                    <input type="text" id="reg-username" placeholder="Имя пользователя" class="input-field">
+                    <input type="text" id="reg-handle" placeholder="@handle" class="input-field">
+                    <input type="password" id="reg-password" placeholder="Пароль" class="input-field">
+                    <div class="age-confirmation">
+                        <input type="checkbox" id="age-confirm" class="checkbox-field">
+                        <label for="age-confirm">Я подтверждаю, что мне 13+ лет</label>
+                    </div>
+                    <div class="terms-confirmation">
+                        <input type="checkbox" id="terms-confirm" class="checkbox-field">
+                        <label for="terms-confirm">Я принимаю <span class="link" onclick="showPolicy('terms')">Правила использования</span> и <span class="link" onclick="showPolicy('privacy')">Политику конфиденциальности</span></label>
+                    </div>
+                    <button class="btn btn-primary" onclick="registerUser()">Зарегистрироваться</button>
+                </div>
+                <div class="legal-links">
+                    <span class="link" onclick="showPolicy('terms')">Правила использования</span> |
+                    <span class="link" onclick="showPolicy('privacy')">Политика конфиденциальности</span> |
+                    <span class="link" onclick="showPolicy('cookies')">Cookie</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основной интерфейс -->
+        <div id="main-screen" class="screen">
+            <div class="desktop-layout">
+                <!-- Левая боковая панель (ПК) -->
+                <div class="sidebar-left">
+                    <div class="sidebar-header">
+                        <div class="sidebar-logo">🖋️</div>
+                        <span>NobuSocial</span>
+                    </div>
+                    <div class="sidebar-nav">
+                        <button class="nav-btn active" onclick="showFeed('latest')">🏠 Главная</button>
+                        <button class="nav-btn" onclick="showFeed('popular')">🔥 Популярное</button>
+                        <button class="nav-btn" onclick="showFeed('subscriptions')">👥 Подписки</button>
+                        <button class="nav-btn" onclick="showSearch()">🔍 Поиск</button>
+                        <button class="nav-btn" onclick="showChatsList()">💬 Чаты</button>
+                        <button class="nav-btn" onclick="openShop()">🛒 Магазин</button>
+                        <button class="nav-btn" onclick="showNotifications()">🔔 Уведомления</button>
+                    </div>
+                    <div class="sidebar-footer">
+                        <div class="user-mini" onclick="viewProfile(currentUser ? currentUser.id : '')">
+                            <div class="user-avatar-mini" id="sidebar-avatar"></div>
+                            <div>
+                                <span id="sidebar-username">Пользователь</span>
+                                <span id="sidebar-handle">@handle</span>
+                            </div>
+                        </div>
+                        <div class="gems-mini">💎 <span id="gems-display">0</span> Gems</div>
+                        <button class="btn btn-secondary" onclick="logout()">Выйти</button>
+                        <div class="legal-links-sidebar">
+                            <span class="link" onclick="showPolicy('terms')">Правила</span> |
+                            <span class="link" onclick="showPolicy('privacy')">Конфиденциальность</span> |
+                            <span class="link" onclick="showPolicy('cookies')">Cookie</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Основной контент -->
+                <div class="main-content" id="main-content">
+                    <!-- Мобильный хедер -->
+                    <div class="mobile-header">
+                        <div class="mobile-logo">🖋️ NobuSocial</div>
+                        <div class="mobile-header-actions">
+                            <button class="icon-btn" onclick="showNotifications()">🔔</button>
+                            <button class="icon-btn" onclick="openShop()">🛒</button>
+                        </div>
+                    </div>
+
+                    <!-- Контейнер ленты -->
+                    <div id="feed-container" class="feed-container">
+                        <div class="feed-tabs">
+                            <button class="feed-tab active" onclick="showFeed('latest')">Последние</button>
+                            <button class="feed-tab" onclick="showFeed('popular')">Популярные</button>
+                            <button class="feed-tab" onclick="showFeed('subscriptions')">Подписки</button>
+                        </div>
+                        <div id="feed-posts"></div>
+                        <div id="feed-loader" class="loader" style="display:none;">Загрузка...</div>
+                    </div>
+
+                    <!-- Контейнер профиля -->
+                    <div id="profile-container" class="profile-container" style="display:none;">
+                        <div class="profile-banner" id="profile-banner"></div>
+                        <div class="profile-header">
+                            <div class="profile-avatar-wrapper">
+                                <div class="profile-avatar" id="profile-avatar"></div>
+                                <span id="profile-premium-badge" style="display:none;" class="premium-badge">⭐</span>
+                            </div>
+                            <div class="profile-info">
+                                <div class="profile-name-row">
+                                    <span class="profile-name" id="profile-name"></span>
+                                    <span id="profile-verified" style="display:none;" class="verified-badge">✔️</span>
+                                </div>
+                                <div class="profile-handle" id="profile-handle-display"></div>
+                                <div class="profile-bio" id="profile-bio"></div>
+                                <div class="profile-meta">
+                                    <span id="profile-location">📍 Не указано</span>
+                                    <a id="profile-link" target="_blank" style="display:none;">🔗 Ссылка</a>
+                                </div>
+                                <div class="profile-stats">
+                                    <span id="profile-chirps"><strong>0</strong> чирпов</span>
+                                    <span id="profile-followers"><strong>0</strong> подписчиков</span>
+                                    <span id="profile-following"><strong>0</strong> подписок</span>
+                                </div>
+                                <div class="profile-actions" id="profile-actions">
+                                    <button id="follow-btn" class="btn btn-primary" onclick="toggleFollow()">Подписаться</button>
+                                    <button id="edit-profile-btn" class="btn btn-secondary" onclick="showEditProfile()">Редактировать</button>
+                                    <button id="premium-btn" class="btn btn-premium" onclick="showPremiumModal()">⭐ Premium</button>
+                                    <button id="admin-btn" class="btn btn-admin" onclick="showAdminPanel()" style="display:none;">⚙️ Админ</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profile-posts-header">Чирпы</div>
+                        <div id="profile-posts"></div>
+                    </div>
+
+                    <!-- Контейнер чатов -->
+                    <div id="chats-container" class="chats-container" style="display:none;">
+                        <div class="chats-header">
+                            <span>💬 Чаты</span>
+                            <button class="btn btn-primary btn-sm" onclick="showCreateGroup()">+ Создать группу</button>
+                        </div>
+                        <div class="chats-tabs">
+                            <button class="chat-tab active" onclick="switchChatsTab('private')">Личные</button>
+                            <button class="chat-tab" onclick="switchChatsTab('groups')">Группы</button>
+                        </div>
+                        <div id="private-chats-list"></div>
+                        <div id="group-chats-list" style="display:none;"></div>
+                    </div>
+
+                    <!-- Окно чата -->
+                    <div id="chat-window" class="chat-window" style="display:none;">
+                        <div class="chat-header">
+                            <button class="back-btn" onclick="closeChat()">← Назад</button>
+                            <div class="chat-title" id="chat-title">Чат</div>
+                        </div>
+                        <div class="chat-messages" id="chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chat-input" placeholder="Сообщение..." class="input-field">
+                            <button class="btn btn-primary btn-icon" onclick="sendMessage()">➤</button>
+                        </div>
+                    </div>
+
+                    <!-- Контейнер поиска -->
+                    <div id="search-container" class="search-container" style="display:none;">
+                        <div class="search-bar">
+                            <input type="text" id="search-input" placeholder="Поиск по @handle или #хештегу" class="input-field">
+                            <button class="btn btn-primary" onclick="performSearch()">🔍 Найти</button>
+                        </div>
+                        <div id="search-results"></div>
+                    </div>
+                </div>
+
+                <!-- Правая боковая панель (ПК) -->
+                <div class="sidebar-right">
+                    <div class="search-bar-pc">
+                        <input type="text" id="search-input-pc" placeholder="Поиск..." class="input-field">
+                        <button class="btn btn-primary btn-icon" onclick="performSearchPC()">🔍</button>
+                    </div>
+                    <div class="trends">
+                        <h3>🔥 Тренды</h3>
+                        <div id="trends-list">Загрузка...</div>
+                    </div>
+                    <div class="premium-promo" onclick="showPremiumModal()">
+                        <h3>⭐ NobuSocial Premium</h3>
+                        <p>Эксклюзивные функции + 1000 Gems!</p>
+                    </div>
+                    <div class="legal-links-pc">
+                        <span class="link" onclick="showPolicy('terms')">Правила использования</span><br>
+                        <span class="link" onclick="showPolicy('privacy')">Политика конфиденциальности</span><br>
+                        <span class="link" onclick="showPolicy('cookies')">Cookie</span><br>
+                        <span class="legal-copy">© 2024 NobuSocial. Все права защищены.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Мобильное нижнее меню -->
+            <div class="mobile-nav" id="mobile-nav">
+                <button class="mobile-nav-btn active" onclick="mobileNav('feed')">🏠</button>
+                <button class="mobile-nav-btn" onclick="mobileNav('search')">🔍</button>
+                <button class="mobile-nav-btn" onclick="createPostFab()">✚</button>
+                <button class="mobile-nav-btn" onclick="mobileNav('chats')">💬</button>
+                <button class="mobile-nav-btn" onclick="mobileNav('profile')">👤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none;" onclick="closeModal()"></div>
+
+    <!-- Создание поста -->
+    <div id="create-post-modal" class="modal" style="display:none;">
+        <div class="modal-header">
+            <span>✏️ Новый чирп</span>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <textarea id="post-content" maxlength="280" placeholder="Что происходит?" class="input-field"></textarea>
+        <div class="char-count"><span id="char-count">0</span>/280</div>
+        <input type="file" id="post-media" accept="image/*,video/*,audio/*" class="input-field">
+        <button class="btn btn-primary" onclick="createPost()">Чирпнуть</button>
+    </div>
+
+    <!-- Редактирование профиля -->
+    <div id="edit-profile-modal" class="modal" style="display:none;">
+        <div class="modal-header">
+            <span>✏️ Редактировать профиль</span>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <label>Аватар</label>
+        <input type="file" id="avatar-upload" accept="image/*" class="input-field">
+        <label>Баннер</label>
+        <input type="file" id="banner-upload" accept="image/*" class="input-field">
+        <label>Био</label>
+        <textarea id="bio-input" placeholder="Расскажите о себе" class="input-field"></textarea>
+        <label>Локация</label>
+        <input type="text" id="location-input" placeholder="Где вы?" class="input-field">
+        <label>Ссылка</label>
+        <input type="text" id="link-input" placeholder="Ваш сайт" class="input-field">
+        <button class="btn btn-primary" onclick="updateProfile()">Сохранить</button>
+    </div>
+
+    <!-- Premium подписка -->
+    <div id="premium-modal" class="modal" style="display:none;">
+        <div class="modal-header">
+            <span>⭐ Premium подписка</span>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="premium-info">
+            <h3>Преимущества Premium:</h3>
+            <ul>
+                <li>🎨 Золотая рамка профиля</li>
+                <li>✅ Золотая галочка верификации</li>
+                <li>🎁 1000 Gems в подарок</li>
+                <li>💎 Приоритетная поддержка</li>
+            </ul>
+        </div>
+        <div class="premium-options">
+            <div class="premium-option" onclick="selectPremium('1month')">
+                <div><strong>1 месяц</strong><p>15 ⭐</p></div>
+                <span class="premium-price">15 ⭐</span>
+            </div>
+            <div class="premium-option" onclick="selectPremium('3months')">
+                <div><strong>3 месяца</strong><p>40 ⭐</p></div>
+                <span class="premium-price">40 ⭐</span>
+            </div>
+            <div class="premium-option" onclick="selectPremium('1year')">
+                <div><strong>1 год</strong><p>140 ⭐</p></div>
+                <span class="premium-price">140 ⭐</span>
+            </div>
+        </div>
+        <div id="premium-code-section" style="display:none;">
+            <div class="premium-instruction">
+                <p>1️⃣ Отправьте <strong id="stars-amount"></strong> Telegram Stars на @hhhhhein</p>
+                <p>2️⃣ В сообщении укажите ваш код: <strong id="activation-code-display"></strong></p>
+                <p>3️⃣ Бот активирует подписку автоматически</p>
+            </div>
+            <input type="text" id="code-input" placeholder="Введите код активации" class="input-field">
+            <button class="btn btn-premium" onclick="activatePremium()">Активировать Premium</button>
+        </div>
+    </div>
+
+    <!-- Магазин -->
+    <div id="shop-modal" class="modal" style="display:none;">
+        <div class="modal-header">
+            <span>🛒 Магазин</span>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="gems-balance">💎 Ваш баланс: <strong id="shop-gems-count">0</strong> Gems</div>
+        <div id="shop-items"></div>
+    </div>
+
+    <!-- Админ-панель -->
+    <div id="admin-modal" class="modal" style="display:none;">
+        <div class="modal-header">
+            <span>⚙️ Админ-панель</span>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" onclick="switchAdminTab('stats')">📊 Статистика</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('users')">👥 Пользователи</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('gems')">💎 Gems</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('posts')">📝 Посты</button>
+        </div>
+        <div id="admin-content"></div>
+    </div>
+
+    <!-- Уведомления -->
+    <div id="notifications-modal" class="modal" style="display:none;">
+        <div class="modal-header">
+            <span>🔔 Уведомления</span>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div id="notifications-list"></div>
+    </div>
+
+    <!-- Политики -->
+    <div id="policy-modal" class="modal policy-modal" style="display:none;">
+        <div class="modal-header">
+            <span id="policy-title">Политика</span>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="policy-content" id="policy-content"></div>
+    </div>
+
+    <!-- Глобальный тост -->
+    <div id="global-toast" class="toast"></div>
+
+    <!-- Cookie баннер -->
+    <div id="cookie-banner" class="cookie-banner" style="display:none;">
+        <div class="cookie-banner-content">
+            <p>🍪 Мы используем Cookie для улучшения работы сайта. Продолжая использовать NobuSocial, вы соглашаетесь с нашей <span class="link" onclick="showPolicy('cookies')">политикой Cookie</span>.</p>
+            <button class="btn btn-primary btn-sm" onclick="acceptCookies()">Принять</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
